@@ -5,6 +5,7 @@ import shutil
 import os
 import uuid
 import orm.repo as repo #funciones para hacer consultas a la BD
+import orm.esquemas as esquemas #importamos esquemas
 from sqlalchemy.orm import Session
 from orm.config import generador_sesion #generador de sesiones
 
@@ -16,7 +17,7 @@ app = FastAPI()
 def hola_mundo():
     print("invocando a ruta /")
     respuesta = {
-        "mensaje": "Práctica ALUMNOS"
+        "mensaje": "Práctica ALUMNOS REST 2"
     }
 
     return respuesta
@@ -36,6 +37,11 @@ def alumnos_por_id(id:int,sesion:Session=Depends(generador_sesion)):
 def borrar_alumno(id:int, sesion:Session=Depends(generador_sesion)):
     repo.borra_alumno_por_id(sesion,id)
     return{"usuario borrado","ok"}
+
+#para actualizar los datos del alumno por id
+@app.put("/alumnos/{id}")
+def actualizar_alumno(id:int, info_alumno:esquemas.AlumnoBase,sesion:Session=Depends(generador_sesion)):
+    return repo.ctualizar_alumno(sesion,id, info_alumno)
 
 #se hizo para consultar todas las fotos
 @app.get("/fotos")
@@ -65,6 +71,12 @@ def borrar_foto(id:int, sesion:Session=Depends(generador_sesion)):
 def borrar_fotos_id_alumnos(id:int, sesion:Session=Depends(generador_sesion)):
     repo.borrar_fotos_por_id_alumno(sesion,id)
     return{"foto borrada","ok"}
+
+#para actualizar los datos de la foto por id
+@app.put("/fotos/{id}")
+def actualizar_foto(id:int, info_foto:esquemas.FotosBase,sesion:Session=Depends(generador_sesion)):
+    return repo.ctualizar_fotos(sesion,id, info_foto)
+
 
 
 
@@ -96,3 +108,23 @@ def borrar_calificacion(id:int, sesion:Session=Depends(generador_sesion)):
 def borrar_calificaciones_id_alumnos(id:int, sesion:Session=Depends(generador_sesion)):
     repo.borrar_calificaciones_por_id_alumno(sesion,id)
     return{"calificación borrada","ok"}
+
+#para actualizar los datos de la calificacion por id
+@app.put("/calificaciones/{id}")
+def actualizar_calificaciones(id:int, info_calificacion:esquemas.CalificacionBase,sesion:Session=Depends(generador_sesion)):
+    return repo.actualizar_calificaciones(sesion,id, info_calificacion)
+
+@app.post("/alumnos")
+def guardar_alumno(alumno:esquemas.AlumnoBase,sesion:Session=Depends(generador_sesion)):
+    print(alumno)
+    return repo.guardar_alumno(sesion, alumno)
+
+@app.post("/alumnos/{id}/calificaciones")
+def guardar_calificacion(id:int, calificacion:esquemas.CalificacionBase,sesion:Session=Depends(generador_sesion)):
+    print(calificacion)
+    return repo.guardar_calificaciones_por_id_alumno(sesion, id,calificacion)
+
+@app.post("/alumnos/{id}/fotos")
+def guardar_fotos(id:int, foto:esquemas.FotosBase,sesion:Session=Depends(generador_sesion)):
+    print(foto)
+    return repo.guardar_fotos_por_id_alumno(sesion, id,foto)
